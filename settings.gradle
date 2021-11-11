@@ -1,0 +1,5 @@
+include ':app'
+include ':autoadapter-annotations'
+include ':autoadapter-processor'
+include ':source-annotation'
+include ':source-proccessor'
