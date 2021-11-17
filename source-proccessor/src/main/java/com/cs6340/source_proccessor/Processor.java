@@ -81,7 +81,6 @@ public class Processor extends AbstractProcessor {
     }
 
 
-
     private void writeClosing() {
         try {
             writer.append("\t</category>\n")
@@ -99,30 +98,27 @@ public class Processor extends AbstractProcessor {
         String returnType = paramTypesAndReturnType.substring(paramLastIndex);
 
         String signature = classPath + ": " + returnType + " " + methodName + params;
-        String[] paramsList = null;
+        String[] paramsList = new String[0];
 
         if (params.length() > 2) {
             String paramsNoParentheses = params.substring(1, params.length() - 1);
             paramsList = paramsNoParentheses.split(",");
-            System.out.println(paramsNoParentheses);
-        } else {
-            paramsList = new String[0];
         }
 
         try {
-            writer.append("\t\t<method signature=\"&lt;" + signature + "&gt;\">\n")
-                    .append("\t\t\t<return type=\"" + returnType + "\">\n");
-
-//            for (String param:
-//                 paramsList) {
-
-//            }
-
-            ///Only specific cases for when sink?
-                    writer.append("\t\t\t\t<accessPath isSource=\"true\" isSink=\"false\">\n")
+            writer.append("\t\t<method signature=\"&lt;" + signature + "&gt;\">\n");
 
 
-                    .append("\t\t\t\t</accessPath>\n")
+            for (int i = 0; i < paramsList.length; i++) {
+                String type = paramsList[i];
+
+                writer.append("\t\t\t<param index=\"" + i + "\" type=\"" + type + "\">\n")
+                        .append("\t\t\t\t<accessPath isSource=\"false\" isSink=\"false\" />\n")
+                        .append("\t\t\t</param>\n");
+            }
+
+            writer.append("\t\t\t<return type=\"" + returnType + "\">\n")
+                    .append("\t\t\t\t<accessPath isSource=\"true\" isSink=\"false\"/>\n")
                     .append("\t\t\t</return>\n")
                     .append("\t\t</method>\n");
         } catch (Exception e) {
@@ -159,7 +155,7 @@ public class Processor extends AbstractProcessor {
 
             return sourcePath;
         } catch (Exception e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
 
         return "";

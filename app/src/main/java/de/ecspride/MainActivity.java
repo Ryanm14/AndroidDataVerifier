@@ -20,7 +20,6 @@ import java.util.LinkedList;
 public class MainActivity extends Activity {
 
 	@Override
-	@Source
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -35,7 +34,7 @@ public class MainActivity extends Activity {
 
 	@Source
 	public String privateData(int num, String test) {
-		return "Tacos";
+		return "PRIVATE DATA";
 	}
 
 }
