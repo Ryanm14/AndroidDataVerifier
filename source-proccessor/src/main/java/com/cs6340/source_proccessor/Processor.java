@@ -38,20 +38,20 @@ public class Processor extends AbstractProcessor {
         try {
             sourceSinksFile = createSourceSinksFile();
             openStreams();
-            writeXmlHeader();
+            addDefaultSinks();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
+    private void addDefaultSinks() throws IOException {
+        writer.append(DefaultSinkConfig.CONFIG);
+    }
+
     private void openStreams() throws FileNotFoundException {
         fileOutputStream = new FileOutputStream(sourceSinksFile, true);
         writer = new OutputStreamWriter(fileOutputStream);
-    }
-
-    private void writeXmlHeader() throws IOException {
-        writer.append("<sinkSources>\n").append("\t<category id=\"NO_CATEGORY\">\n");
     }
 
     @Override
@@ -83,8 +83,6 @@ public class Processor extends AbstractProcessor {
 
     private void writeClosing() {
         try {
-            writer.append("\t</category>\n")
-                    .append("</sinkSources>");
             writer.close();
             fileOutputStream.close();
         } catch (Exception e) {
@@ -98,29 +96,9 @@ public class Processor extends AbstractProcessor {
         String returnType = paramTypesAndReturnType.substring(paramLastIndex);
 
         String signature = classPath + ": " + returnType + " " + methodName + params;
-        String[] paramsList = new String[0];
-
-        if (params.length() > 2) {
-            String paramsNoParentheses = params.substring(1, params.length() - 1);
-            paramsList = paramsNoParentheses.split(",");
-        }
 
         try {
-            writer.append("\t\t<method signature=\"&lt;" + signature + "&gt;\">\n");
-
-
-            for (int i = 0; i < paramsList.length; i++) {
-                String type = paramsList[i];
-
-                writer.append("\t\t\t<param index=\"" + i + "\" type=\"" + type + "\">\n")
-                        .append("\t\t\t\t<accessPath isSource=\"false\" isSink=\"false\" />\n")
-                        .append("\t\t\t</param>\n");
-            }
-
-            writer.append("\t\t\t<return type=\"" + returnType + "\">\n")
-                    .append("\t\t\t\t<accessPath isSource=\"true\" isSink=\"false\"/>\n")
-                    .append("\t\t\t</return>\n")
-                    .append("\t\t</method>\n");
+            writer.append("<").append(signature).append("> -> _SINK_");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,7 +108,7 @@ public class Processor extends AbstractProcessor {
         File file = new File(fetchSourcePath());
         File generatedFolder = file.getParentFile().getParentFile().getParentFile().getParentFile();
         File flowDroidFolder = new File(generatedFolder.getAbsolutePath() + "/flowdroid/");
-        File outputFile = new File(flowDroidFolder.getAbsolutePath() + "/source-sinks.xml");
+        File outputFile = new File(flowDroidFolder.getAbsolutePath() + "/source-sinks.txt");
 
         if (!flowDroidFolder.exists()) {
             flowDroidFolder.mkdir();
