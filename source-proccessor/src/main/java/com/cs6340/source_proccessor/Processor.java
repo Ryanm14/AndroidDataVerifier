@@ -1,5 +1,6 @@
 package com.cs6340.source_proccessor;
 
+import com.cs6340.source_annotation.Sink;
 import com.cs6340.source_annotation.Source;
 
 import java.io.File;
@@ -8,9 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -21,8 +20,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Processor extends AbstractProcessor {
@@ -58,6 +55,7 @@ public class Processor extends AbstractProcessor {
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new HashSet<>();
         annotations.add(Source.class.getCanonicalName());
+        annotations.add(Sink.class.getCanonicalName());
         return annotations;
     }
 
@@ -72,7 +70,15 @@ public class Processor extends AbstractProcessor {
             String methodName = element.getSimpleName().toString();
             String classPath = element.getEnclosingElement().toString();
 
-            writeSourceToFile(classPath, methodName, paramTypesAndReturnType);
+            writeAnnotationToFile(classPath, methodName, paramTypesAndReturnType, "_SOURCE_");
+        }
+
+        for (Element element : roundEnvironment.getElementsAnnotatedWith(Sink.class)) {
+            String paramTypesAndReturnType = element.asType().toString();
+            String methodName = element.getSimpleName().toString();
+            String classPath = element.getEnclosingElement().toString();
+
+            writeAnnotationToFile(classPath, methodName, paramTypesAndReturnType,  "_SINK_");
         }
 
         writeClosing();
@@ -90,7 +96,7 @@ public class Processor extends AbstractProcessor {
         }
     }
 
-    private void writeSourceToFile(String classPath, String methodName, String paramTypesAndReturnType) {
+    private void writeAnnotationToFile(String classPath, String methodName, String paramTypesAndReturnType, String stringType) {
         int paramLastIndex = paramTypesAndReturnType.indexOf(")") + 1;
         String params = paramTypesAndReturnType.substring(0, paramLastIndex);
         String returnType = paramTypesAndReturnType.substring(paramLastIndex);
@@ -98,7 +104,7 @@ public class Processor extends AbstractProcessor {
         String signature = classPath + ": " + returnType + " " + methodName + params;
 
         try {
-            writer.append("<").append(signature).append("> -> _SINK_");
+            writer.append("<").append(signature).append("> -> ").append(stringType).append("\n");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.cs6340.source_annotation.Sink;
 import com.cs6340.source_annotation.Source;
 
 import java.util.LinkedList;
@@ -34,6 +35,11 @@ public class MainActivity extends Activity {
 
 	@Source
 	public String privateData(int num, String test) {
+		return "PRIVATE DATA";
+	}
+
+	@Sink
+	public String useData(String data) {
 		return "PRIVATE DATA";
 	}
 
